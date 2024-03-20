@@ -1,0 +1,61 @@
+	::: Overview to Backend in JavaScript :::
+   
+Channel Name  : Chai aur Code.
+Playlist Name : Chai aur JavaScript Backend | Hindi.
+
+Video No.     : 2.
+Video Title   : How to deploy backend code in production.
+
+-------------------------------------------------------
+-------------------------------------------------------
+: Requirement :
+- NodeJs 
+- Express (package for creating server).
+-------------------------------------------------------
+'/' : home route
+
+-------------------------------------------------------
+: Setting up the project  :
+
+- npm init
+- npm insatll express
+
+-------------------------------------------------------
+: index.js :
+
+const express = require('express')
+const app = express()
+const port = 3000
+
+app.get('/',(req,res)=>{
+	res.send('Hello Backend')
+})
+
+app.listen(port,()=>{
+	console.log(`Example app listening on port ${port}`)
+})
+
+--------------------------------------------------------
+: Deploying the application :
+
+- npm insatll dotenv
+
+: .env : (dotenv file)
+PORT=3000
+
+: index.js : (production ready app)
+require('dotenv').config
+const express = require('express')
+const app = express()
+
+app.get('/',(req,res)=>{
+	res.send('Hello Backend')
+})
+
+app.listen(process.env.port,()=>{
+	console.log(`Example app listening on port ${port}`)
+})
+
+
+
+ 

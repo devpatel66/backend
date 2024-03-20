@@ -1,0 +1,24 @@
+{
+  "name": "02backend",
+  "version": "1.0.0",
+  "description": "A project based learning by Chai aur JavaScript Backend offered by Chai aur Code Yt Channel ",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "dev": "nodemon src/index.js"
+  },
+  "keywords": [
+    "javascript",
+    "backend",
+    "chai",
+    "aur",
+    "code",
+    "express",
+    "node"
+  ],
+  "author": "Dev patel",
+  "license": "ISC",
+  "devDependencies": {
+    "nodemon": "^3.1.0"
+  }
+}
