@@ -1,1 +1,100 @@
-Upload File in backend
+		:::: Upload File in backend ::::
+
+Video No.   : 10
+Video Title : How to upload file in backend
+-----------------------------------------------------------------
+
+- npm install multer
+- npm install cloudinary
+- cloudinary : for uploading images
+
+-----------------------------------------------------------------
+.env :
+CLOUDINARY_CLOUDNAME: from cloudinary website
+CLOUDINARY_API_KEY: from cloudinary website
+CLOUDINARY_API_SECRET: from cloudinary website
+
+-----------------------------------------------------------------
+utils => cloudinary.js :
+
+import {v2 as cloudinary} from 'cloudinary'
+import fs from 'fs'
+
+cloudinary.config({
+	cloud_name : process.env.CLOUDINARY_CLOUDNAME
+	api_key : process.env.CLOUDINARY_API_KEY
+	api_secret : process.env.CLOUDINARY_API_SECRET
+})
+
+const uploadCloudinary = async (localFilePath) => {
+	try{
+		if(!localFilePath) return null;
+		
+		//uplaod file on cloudinary
+		const response = await cloudinary.uploader.upload(localFilePath, {
+			resourse_type : "auto"
+		})
+		
+		console.log("File is uploaded on cloudinary", response.url);
+
+	return response; 
+	}
+	catch(error){
+		fs.unlinkSync(localFilePath) //remove the locally saved temporary file as the upload operation got failed.
+
+		return null;
+	}
+}
+
+export {uploadCloudinary}
+
+-----------------------------------------------------------------
+fs : file system for read and write in file
+
+-----------------------------------------------------------------
+: multer :
+
+middleware (folder) => multer_middleware.js :
+
+import multer from "multer"; 
+
+const storage = multer.diskStorage({
+	destination : function(req,file,cd){
+		cb(null,"./public/temp")
+	},
+	filename : function (req,file,cb){
+		cd(null,file.originalname)			
+	}
+
+})
+
+export const upload = multer({storage})
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
