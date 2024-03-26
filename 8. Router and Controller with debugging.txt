@@ -1,0 +1,32 @@
+	:::: Router and Controller with debugging ::::
+
+Video No.   : 12
+Video Title : Complete guide for router and controller with debugging.
+---------------------------------------------------------------
+controllers (folder) => user_controllers.js :
+
+import asyncHandler from './utils/asyncHandler.js'
+
+const registerUser = asyncHandler(async (req,res)=>{
+	res.status(200).json({
+		message : 'ok'
+	})
+})
+
+export {registerUser}
+
+---------------------------------------------------------------
+routes (folder) => user_routes.js :
+
+import {Router} from 'express'
+
+const router = Router()
+
+export default router;
+
+---------------------------------------------------------------
+app.js :
+
+//routes import
+import userRouter from './routes/user_routes.js';
+

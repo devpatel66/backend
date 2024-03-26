@@ -1,0 +1,84 @@
+			:::: HTTP ::::
+
+Video No.   : 11
+Video Title : HTTP crash course
+---------------------------------------------------------------
+HTTP : Hyper Text Transfer Protocol.
+
+: What are HTTP header :
+- metadata : key-value sent along with request and response.
+
+use of header :
+- caching, authentication, manage state
+
+Category :
+- Request Header : from client
+- Response Header : from server
+- Representation Header : encoding/compression
+- Payload (data) Header : data
+
+
+Most Common Headers : 
+
+* Accept : application/jsom
+* User-Agent
+* Authorigation
+* Content-Type
+* Cookie
+* Cache-Control
+
+
+
+CORS :
+
+* Access-Control-Allow-Origin
+* Access-Control-Credentials
+* Access-Control-Allow-Method
+
+
+Security :
+
+* Cross-Origin-Embedder-Policy
+* Cross-Origin-Opener-Policy
+* Content-Security-Policy
+* X-XSS-Protection
+
+
+
+HTTP Methods : 
+- Basic set of operation that can be used to interact with server.
+
+- GET     : retrieve a resource
+- HEAD    : No message body (response header only)
+- OPTIONS : what operation are available
+- TRACE   : Loopback test (get some data)
+- DELETE  : remove a resource
+- PUT     : replace a resource
+- POST    : interact with resource (mostly add)
+- PATCH   : change part of a resource
+
+
+
+HTTP Status Code :
+
+- 1** Infornational
+- 2** Success
+- 3** Redirectional
+- 4** Client error
+- 5** Server error
+
+
+
+100 : Continue
+102 : Processing
+200 : OK
+201 : created
+202 : accepted
+307 : temporary redirect
+308 : permanent redirect
+400 : Bad request
+401 : unauthorized
+402 : Payement required
+404 : not found
+500 : Internal Server error
+504 : Gateway time out

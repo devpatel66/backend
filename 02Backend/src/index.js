@@ -1,5 +1,9 @@
 import coonectDb from "./db/index.js";
+import express from "express";
 import dotenv from 'dotenv'
+import app from "./app.js";
+
+
 
 dotenv.config({
     path:"./env"
@@ -14,5 +18,5 @@ coonectDb()
     })
 })
 .catch((error)=>{
-    console.log("MongoDB connection failer !! ".error)
+    console.log("MongoDB connection failer !! ",error)
 })
