@@ -1,0 +1,109 @@
+		:::: Register Controller ::::
+
+Video No.   : 13
+Video Title : Logic Building | Register Controller.
+-----------------------------------------------------------------
+Steps for register user : 
+
+1. Get user details from frontend.
+2. Validation - not empty.
+3. check if user is already exists : username and email.
+4. check for images and check for avatar and upload them to cloudinary.
+5. create user object - create entry in db.
+6. remove password and refresh token field from response.
+7. check for user creation and if it created return the response and if not return error response.
+
+-----------------------------------------------------------------
+controller => user_controller.js :
+
+import ApiError from '../utils/ApiError.js'
+import {User} from '../models/user_models.js'
+import uploadCloudinary from '../utils/cloudinary.js'
+import {ApiResponse} from '../utils/ApiResponse.js'
+
+const registerUser = asyncHandler( async(req,res)=>{
+
+	const {fullname, email, username, password} = req.body
+	console.log("Username", username);  
+
+	// validation
+	if(fullname == ""){
+		throw new ApiError(400, "fullname is required")
+	} // and same others feilds
+	
+	// other ways of validation
+	if([fullname, email, username, password].some((field)=> field?.trim() === "")
+	)
+	{
+		throw new ApiError(400, "All fields are required");
+	}
+	
+	//checking if email is already regisetered
+	const existedUser = User.findOne({
+		$or: [ { username },{ email } ]
+	})
+	
+	if(existedUser){
+		throw new ApiError(409, "user with username or email is already existed")
+	}
+
+	
+	const avatarLocalPath = req.files?.avatar[0]?.path;
+	const coverImageLocalPath = req.files?.coverImage[0]?.path;
+
+	if(!avatarLocalPath){
+		throw new ApiError(400, "Avatar file is required")
+	}
+	
+	//uploading images on cloudinary
+	const avatar = await uploadCloudinary(avatarLocalPath)
+	const coverImage = await uploadCloudinary(coverImageLocalPath)
+
+	if(!avatar){
+		throw new ApiError(400, "Avatar file is required")
+	}
+
+	//create a entryfe
+	const user = await User.create({
+		fullname,
+		avatar : avatar.url,
+		coverImage : coverImage?.url || "",
+		email,
+		password,
+		username : username.toLowerCase()
+	})
+
+	const createdUser = await User.findById(user._id).select("-password -refreshToken")
+
+	//select() : on above select method we are removing password and refreshToken.
+
+	if(!createdUser){
+		throw new ApiError(500,"Something went wrong while registering the user")
+	}
+	
+	return res.status(201).json(
+		new ApiResponse(200, createdUser, "User registered successfully")
+	)
+	 
+})
+
+-----------------------------------------------------------------
+feilds() : it is used to uplaod multiple things like images, video ......
+
+routes => user_routes.js : 
+
+import {upload} from '../middlewares/multer_middlewares.js'
+
+router.route("./register").post(
+	upload.feilds([ 
+		{
+			name : 'avatar',
+			maxCount : 1
+		},
+		{
+			name : 'coverImage', //these name should match with name in frontend
+			maxCount : 1
+		}
+	
+	])
+)

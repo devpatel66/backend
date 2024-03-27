@@ -12,15 +12,18 @@ const registerUser = asyncHandler(async (req,res)=>{
 		message : 'ok'
 	})
 })
-
 export {registerUser}
 
 ---------------------------------------------------------------
 routes (folder) => user_routes.js :
 
 import {Router} from 'express'
+import {registerUser} from '../controllers/user_controller.js'
 
 const router = Router()
+
+router.route("/register").post(registeredUser)
+
 
 export default router;
 
@@ -30,3 +33,5 @@ app.js :
 //routes import
 import userRouter from './routes/user_routes.js';
 
+//routes declaration
+app.use("/api/v1/users",userRouter)
