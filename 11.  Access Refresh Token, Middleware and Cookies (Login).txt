@@ -1,0 +1,101 @@
+     :::: Access Refresh Token, Middleware and Cookies ::::
+
+Video No.   : 15
+Video Title : Access Refresh Token, Middleware and Cookies.
+-----------------------------------------------------------------
+Access Token are expire after long period of time.
+Refresh Token are expire after short period of time.
+
+-----------------------------------------------------------------
+: Login Controller :
+
+Steps for User to Login :
+1. get data from user 
+2. check the data if it is not empty
+3. check the data from user to match with that of database.
+4. if the data is matched return true else if return false.
+
+
+-----------------------------------------------------------------
+controllers => user_controller.js :
+
+const generateAccessAndRefreshTokens = async (userId)=>{
+	try{
+		const user = await User.findById(userId)
+		const accessToken = user.generateAccessToken()
+		cont refreshToekn = user.generateRefreshToken()
+		
+		user.refreshToken = refreshToken
+		await user.save({ validateBeforeSave : false })
+		
+		return {accessToken, refreshToken}
+
+	}
+	catch(error){
+		throw new ApiError(500,"Something went wrong while genrating refresh and access token")
+	}
+}
+
+const loginUser = asyncHandler(async (req,res)=>{
+	//req body -> data
+	//login by username or email
+	//find the user
+	//password check
+	//access and refresh token
+	//send cookiee as a response.
+
+	const {email,username,password} = req.body
+
+	if(!username || !email)
+	{
+		throw new ApiError(400,'Username or Email is required')
+	}
+	
+	//finding the user from database and it will return a result, if it is present will get the result and if not then an empty document/object.
+	const user = await User.findOne({
+		$or : [ { username },{ email } ]
+
+	})
+
+	if(!user){
+		throw new ApiError(404,"User does not exits")
+	}
+
+
+	const isPasswordValid = await user.isPasswordCorrect(password)
+
+	if(!isPasswordValid){
+		throw new ApiError(401,"Invalid User credentials")
+	}	
+	
+	const {accessToken, refreshToken} = await generateAccessAndRefreshTokens(user._id)
+
+	const loggedInIUser= await User.findById(user._id).select("-password -refreshToken")
+
+
+	//cookies
+	const options = {
+		httpOnly : true,
+		secure : true
+	}
+
+	
+	//return the reponse
+	return res.status(200)
+	.cookie("accessToken", accessToken, option)
+	.cookie("refreshToken",refreshToken, option)
+	.json(
+		new ApiResponse(200,
+		{
+			user : loggedInUser, accessToken, refreshToken
+		},"User logged in successfully")
+	)
+	
+
+})
+
+
+export {
+	registerUser
+	loginUser
+}
