@@ -58,6 +58,7 @@ const loginUser = asyncHandler(async (req,res)=>{
 	})
 
 	if(!user){
+		//on next txt file 12
 		throw new ApiError(404,"User does not exits")
 	}
 
@@ -94,8 +95,83 @@ const loginUser = asyncHandler(async (req,res)=>{
 
 })
 
+const logoutUser = asyncHandler( async(req,res)=>{
+	
+	await User.findByIdAndUpdate(req.user._id,{
+		$set: {
+			refreshToken : undefined
+		}
+	},
+	{
+		new :  true
+	}
+	)
+
+	const options = {
+		httpOnly : true
+		secure : true
+	}
+
+	return res
+	.status(200)
+	.cookie("accessToken", option)
+	.cookie("refreshToken", option)
+	.json( new ApiResponse(200,{},"User loggedOut"))
+
+	
+})
+
 
 export {
-	registerUser
-	loginUser
+	registerUser,
+	loginUser,
+	logoutUser
 }
+
+
+---------------------------------------------------------------
+middleware => auth_middleware.js :
+import {asyncHandler} from '../utils/asyncHandler'
+import jwt from 'jsonwebtoken'
+import {User} from '../models/user_model.js'
+
+
+export const verfiyJWT = asyncHandler( async(req,res,next)=>{
+
+	try{
+	const token = req.cookies?.accessToken || req.header("Authorization")?.replace("Bearer","")
+
+	if(!token){
+		throw new ApiError(401,"Unauthorized request")
+	}
+	
+	const decodedToken = jwt.verfiy(token,process.env.ACCESS_TOKEN_SECERET)
+
+	const user = await User.findById(decoded?._id).select("-password -refreshToken")
+
+
+	if(!user){
+		throw new ApiError(401,"Invalid Access Token")
+	}
+
+	req.user = user;
+	next();
+	
+	}
+	catch(error){
+		throw new ApiError(401,error?.message || "Invalid Access Token")
+	}	
+})
+
+
+------------------------------------------------------------------------
+routes => user_routes.js :
+
+import {loginUser} from "../controllers/user_controller.js"
+import verfiyJWT from '../middlerware/auth_middleware.js'
+
+
+router.route("/login").post(loginUser)
+
+// secured routes
+router.route("/logout").post(verfiyJWT,logoutUser)

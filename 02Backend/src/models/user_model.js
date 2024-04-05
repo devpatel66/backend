@@ -21,10 +21,7 @@ const userSchema = new Schema({
 	fullname : {
 		type : String,
 		required : true,
-		unique : true,
-		lowercase : true,
 		trim : true,
-		index : true
 	},
 	avatar : {
 		type : String, // cloudianry url where images is stored.
@@ -42,7 +39,6 @@ const userSchema = new Schema({
 	password : {
 		type : String,
 		required : [true,"Password is required"],
-		lowercase : true,
 		trim : true,
 	},
 	refreshToken : {
@@ -54,17 +50,18 @@ const userSchema = new Schema({
 userSchema.pre("save", async function(next){
 	if(this.isModified("password")){
 		this.password = await bcrypt.hash(this.password,10)
+		next();
 	}
 })
 
-userSchema.methods.isPassword = async function(password){
-	return await bcrypt.compare(password,this.password,10)
+
+
+userSchema.methods.isPasswordCorrect = async function(password){
+    return await bcrypt.compare(password, this.password)
 }
 
-console.log("user model")
-
 userSchema.methods.genrateAccessToken = function(){
-	jwt.sign({
+	return jwt.sign({
 		_id:this._id,
 		email:this.email,
 		username:this.username,
@@ -72,16 +69,16 @@ userSchema.methods.genrateAccessToken = function(){
 	},
 	process.env.ACCESS_TOKEN_SECRET,
 	{
-		expiresIn:ACCESS_TOKEN_EXPIRY
+		expiresIn:process.env.ACCESS_TOKEN_EXPIRY
 	})
 }
 userSchema.methods.genrateRefreshToken = function(){
-	jwt.sign({
+	return jwt.sign({
 		_id:this._id
 	},
 	process.env.REFRESH_TOKEN_SECRET,
 	{
-		expiresIn:REFRESH_TOKEN_EXPIRY
+		expiresIn:process.env.REFRESH_TOKEN_EXPIRY
 	})
 }
 

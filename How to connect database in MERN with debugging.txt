@@ -1,0 +1,95 @@
+  :::: How to connect database in MERN with debugging ::::
+
+Video No.   : 07
+Video Title : How to connect database in MERN with debugging.
+-------------------------------------------------------------
+
+Database : MongoDB.
+
+-------------------------------------------------------------
+.env (file):
+
+PORT:8000
+MONGODB_URL= //connection string from mongodb atlas.
+
+-------------------------------------------------------------
+constants.js :
+
+export const DB_NAME = "videotube";
+
+-------------------------------------------------------------
+- npm install dotenv
+- npm install mongoose
+- npm install express
+
+-------------------------------------------------------------
+		----------1st Approach-------------
+
+index.js :
+import mongoose from 'mongoose'
+import {DB_NAME} from 'constants'
+
+import express from 'express'
+
+const app = express()
+
+
+//Intermadiate  Innvoke Function
+( async () => {
+	try{
+		await mongoose.connect(`${process.env.MONGODB_URL}/${DB_NAME}`);
+		
+		app.on("error",(error)=>{
+			throw error
+		})
+
+		app.listen(process.env.PORT,()=>{
+			console.log(`App is listening on port ${process.env.PORT}`)
+		})
+	}
+	catch(error){
+		console.error(error)
+	}
+})()
+
+-------------------------------------------------------------
+	-------------2nd Approach-------------------
+	Recommonded Approach
+
+db (folder) => index.js :
+
+import mongoose from 'mongoose'
+import {DB_NAME} from 'constants'
+
+const connectDB = async () => {
+	try{
+		const connectionInstance = await mongoose.connect(`${process.env.MONGODB_URL}/${DB_NAME}`);
+		
+		console.log(`\n MongoDB connected !! DB Host : ${connectionInstance.connection.host}`);
+	}
+	catch(error){
+		console.log("MongoDB Connection error : ",error)
+		process.exit(1);
+	}
+}
+
+export default connectDB;
+-----------------------------------------------
+src (folder) => index.js :
+//require('dotenv').config()
+
+import dotenv from 'dotenv'
+
+dotenv.config({
+	path:"./env"
+})
+
+import connectDB from 'db/index'
+
+connectDB();
+
+------------------------------------------------
+package.json :
+"scripts":{
+	"dev":"nodemon -r dotenv/config --experimental-json-modules src/index.js"
+}

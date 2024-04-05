@@ -1,0 +1,120 @@
+		::: Data Modelling :::
+
+Video No.   : 04.
+Video Title : Data modelling for backend with mongoose.
+----------------------------------------------------------
+: Before writting backend : 
+
+- What we need to store in database... (we need to question these first to ourself)
+- In which database is not important.....
+
+Data Modelling : Definning the structure of the data.
+
+Tools for Data Modelling :
+- Moon Modeler (paid).
+- eraser.
+----------------------------------------------------------
+: mongoose :
+npm install mongoose
+
+
+mongoose helps in definning scehema
+----------------------------------------------------------
+: Models :
+file structure :
+    models(folder) => todos(folder) => 
+		1. user_models.js 
+		2. todo_models.js
+		3. sub_todo_models.js
+----------------------------------------
+user_models.js :
+
+import mongoose from "mongoose"
+
+const userSchema = new mongoose.Schema(
+	{
+	 username : String,
+	 email : String,
+	 isActive : Boolean
+	}
+)
+
+	OR
+
+const userSchema = new mongoose.Schema(
+	{
+	 username : {
+		type: String,
+		required: true,
+		unique: true,
+		lowercase: true		
+	    },
+	 email : {
+		type: String,
+		required: true,
+		unique: true,
+		lowercase: true,	
+	    },
+	 password:{
+	    	type: String,
+		required: true,
+	    }
+	},
+	{
+	 timestamps: true
+	}
+)
+
+export const User = mongoose.model("User",userSchema)
+
+------------------------------------------------------
+todo_models.js :
+
+import mongoose from "mongoose"
+
+const todoSchema = new mongoose.Schema({
+	content:{
+		type: String,
+		required: true		
+	},
+	complete:{
+		type: Boolean,
+		default: false,
+	},
+	//creating reference from user
+	createBy:{
+		type: mongoose.Schema.Types.ObjectId
+		ref: "User",
+	},
+	//array of subtodo.
+	subTodos: [
+		{
+		  type: mongoose.Schema.Types.ObjectId,
+		  ref: "SubTodo"
+		}
+	]
+},{timestamps:true})
+
+export const Todo = mongoose.model('Todo',todoSchema);
+-------------------------------------------------------
+sub_todo_models.js :
+
+import mongoose from 'mongoose';
+
+const subTodoSchema = new mongoose.Schema({
+	content: {
+		type: String,
+		required: true	
+	},
+	complete: {
+		type: Boolean,
+		default: false
+	},
+	createdBy: {
+		type: mongoose.Schema.Types.ObjectId,
+		ref: "User"
+	}
+},{timestamps: true})
+
+export const SubTodo = mongoose.model('SubTodo',subTodoSchema)
+
