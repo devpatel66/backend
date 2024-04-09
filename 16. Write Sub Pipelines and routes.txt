@@ -1,1 +1,69 @@
-Write Sub Pipelines and routes 
+	:::: Write Sub Pipelines and routes ::::
+
+Video No : 20
+Video Title : How to write sub pipelines and routes
+
+-----------------------------------------------------------------
+
+controller => user_controller.js :
+
+const getWatchHistory = asyncHandler(async(req,res)=>{
+	const user = await User.aggregate([
+		{
+			$match :{
+				_id : new mongoose.Types.ObjectId(req.user._id)
+			}
+		},
+		{
+			$lookup : {
+				from : "videos",
+				localField : "watchHistory",
+				foreignField : "_id",
+				as "watchHistory",
+				pipeline : [{
+					$lookup : {
+						from : "User",
+						localField : "owner",
+						foreignField : "_id",
+						as : "owner",
+						pipeline : [{
+							$project : {
+								fullname : 1,
+								username : 1,
+								avatar : 1
+							}
+						}]
+					}
+				},
+				{
+					$addFields : {
+						owner : {
+							$first : "$owner"
+						}
+					}
+				}
+				]
+			}
+		}
+	])
+
+	return res.status(200).json( new ApiResponse(200,user[0].watchHistory,"Watch history fetched successfully"))
+})
+
+---------------------------------------------------------------
+routes => user_routes.js
+
+// secured routes
+router.route("/change-password").post(verfiyJWT,changeCurrentPassword)
+
+router.route("/current-user").get(verfiyJWT,getCurrentUser)
+
+router.route("/update-account").patch(verfiyJWT,updateAccountDetail)
+
+router.route("/avatar").patch(verfiyJWT,upload.single("avatar"),updateUserAvatar)
+
+router.route("/cover-image").patch(verfiyJWT,upload.single("coverImage"),updateCoverImage)
+
+router.route("/c/:username").get(verfiyJWT,getUserChannelProfile)
+
+router.route("/wartch-history").get(verfiyJWT,getWatchHistory)
